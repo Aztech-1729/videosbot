@@ -9,7 +9,7 @@ from typing import Dict, Optional, List
 import aiohttp
 from fastapi import FastAPI, Request, HTTPException
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 import uvicorn
 import config
 import requests
@@ -397,8 +397,13 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if is_admin(query.from_user.id):
             package = data.replace("edit_price_", "")
             context.user_data['editing_price'] = package
+            prices = get_prices()
             await query.edit_message_text(
-                f"Enter new price for {PACKAGE_NAMES[package]} (current: ${get_prices()[package]}):"
+                f"💵 <b>Edit Price</b>\n\n"
+                f"Package: {PACKAGE_NAMES[package]}\n"
+                f"Current Price: ${prices[package]}\n\n"
+                f"Send the new price (numbers only, e.g., 20):",
+                parse_mode="HTML"
             )
     
     # Link editing callbacks
@@ -406,8 +411,14 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if is_admin(query.from_user.id):
             package = data.replace("edit_link_", "")
             context.user_data['editing_link'] = package
+            links = load_json(LINKS_FILE)
+            current_link = links["packages"].get(package, "Not set")
             await query.edit_message_text(
-                f"Send new invite link for {PACKAGE_NAMES[package]}:"
+                f"📝 <b>Edit Group Link</b>\n\n"
+                f"Package: {PACKAGE_NAMES[package]}\n"
+                f"Current Link: {current_link}\n\n"
+                f"Send the new private group invite link:",
+                parse_mode="HTML"
             )
     
     # Package toggle callbacks
@@ -748,6 +759,67 @@ async def oxapay_webhook(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 # Run bot and webhook server
+# Message handler for admin edits
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_admin(update.effective_user.id):
+        return
+    
+    message_text = update.message.text
+    
+    # Handle price editing
+    if 'editing_price' in context.user_data:
+        package = context.user_data['editing_price']
+        try:
+            new_price = float(message_text)
+            if new_price <= 0:
+                await update.message.reply_text("❌ Price must be greater than 0")
+                return
+            
+            # Update price in video_links.json
+            links = load_json(LINKS_FILE)
+            if "prices" not in links:
+                links["prices"] = {}
+            links["prices"][package] = new_price
+            save_json(LINKS_FILE, links)
+            
+            await update.message.reply_text(
+                f"✅ Price updated!\n\n"
+                f"Package: {PACKAGE_NAMES[package]}\n"
+                f"New Price: ${new_price}",
+                parse_mode="HTML"
+            )
+            
+            del context.user_data['editing_price']
+            
+        except ValueError:
+            await update.message.reply_text("❌ Invalid price. Please send a number (e.g., 20)")
+    
+    # Handle link editing
+    elif 'editing_link' in context.user_data:
+        package = context.user_data['editing_link']
+        new_link = message_text.strip()
+        
+        # Basic validation
+        if not new_link.startswith("https://t.me/"):
+            await update.message.reply_text("❌ Invalid link. Must start with https://t.me/")
+            return
+        
+        # Update link in video_links.json
+        links = load_json(LINKS_FILE)
+        if "packages" not in links:
+            links["packages"] = {}
+        links["packages"][package] = new_link
+        save_json(LINKS_FILE, links)
+        
+        await update.message.reply_text(
+            f"✅ Group link updated!\n\n"
+            f"Package: {PACKAGE_NAMES[package]}\n"
+            f"New Link: {new_link}",
+            parse_mode="HTML"
+        )
+        
+        del context.user_data['editing_link']
+
 async def run_bot():
     global bot_app
     
@@ -761,6 +833,7 @@ async def run_bot():
     bot_app.add_handler(CommandHandler("start", start))
     bot_app.add_handler(CommandHandler("admin", admin_panel))
     bot_app.add_handler(CallbackQueryHandler(button_callback))
+    bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
     # Initialize bot
     await bot_app.initialize()
