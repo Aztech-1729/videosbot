@@ -1,0 +1,22 @@
+{
+    "demo_channel": "@demo5video",
+    "demo_message_ids": [2, 3, 4, 5, 6],
+    "packages": {
+        "100_videos": "https://t.me/+XXXXXXXXXXXXX",
+        "1000_videos": "https://t.me/+XXXXXXXXXXXXX",
+        "5000_videos": "https://t.me/+XXXXXXXXXXXXX",
+        "10000_videos_bot": "https://t.me/+XXXXXXXXXXXXX"
+    },
+    "package_status": {
+        "100_videos": true,
+        "1000_videos": true,
+        "5000_videos": true,
+        "10000_videos_bot": true
+    },
+    "prices": {
+        "100_videos": 15,
+        "1000_videos": 35,
+        "5000_videos": 49,
+        "10000_videos_bot": 75
+    }
+}

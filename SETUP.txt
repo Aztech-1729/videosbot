@@ -1,0 +1,196 @@
+═══════════════════════════════════════════════════════════════
+  PREMIUM VIDEOS BOT - COMPLETE SETUP GUIDE
+═══════════════════════════════════════════════════════════════
+
+📋 PREREQUISITES
+═══════════════════════════════════════════════════════════════
+1. Python 3.10 or higher installed
+2. Telegram Bot Token (from @BotFather)
+3. OxaPay Account and API Key
+4. 4 Private Telegram Groups/Channels created
+5. 1 Public Demo Channel with 5 videos
+
+═══════════════════════════════════════════════════════════════
+📝 STEP-BY-STEP CONFIGURATION
+═══════════════════════════════════════════════════════════════
+
+STEP 1: INSTALL DEPENDENCIES
+─────────────────────────────────────────────────────────────
+pip install -r requirements.txt
+
+
+STEP 2: CONFIGURE config.py
+─────────────────────────────────────────────────────────────
+Edit config.py and update:
+
+BOT_TOKEN = "YOUR_BOT_TOKEN_FROM_BOTFATHER"
+OXAPAY_API_KEY = "YOUR_OXAPAY_API_KEY"
+CLOUDFLARE_WEBHOOK_URL = "YOUR_TUNNEL_URL/webhook"  # See Step 4
+ADMIN_IDS = [YOUR_TELEGRAM_USER_ID]
+
+
+STEP 3: CONFIGURE video_links.json
+─────────────────────────────────────────────────────────────
+Edit video_links.json and update:
+
+{
+    "demo_channel": "@your_demo_channel",
+    "demo_message_ids": [2, 3, 4, 5, 6],
+    
+    "packages": {
+        "100_videos": "https://t.me/+YOUR_INVITE_LINK_1",
+        "1000_videos": "https://t.me/+YOUR_INVITE_LINK_2",
+        "5000_videos": "https://t.me/+YOUR_INVITE_LINK_3",
+        "10000_videos_bot": "https://t.me/+YOUR_INVITE_LINK_4"
+    },
+    
+    "prices": {
+        "100_videos": 15,
+        "1000_videos": 35,
+        "5000_videos": 49,
+        "10000_videos_bot": 75
+    }
+}
+
+
+STEP 4: SETUP CLOUDFLARE TUNNEL
+─────────────────────────────────────────────────────────────
+1. Download cloudflared:
+   https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation/
+
+2. Run tunnel (in new terminal):
+   cloudflared tunnel --url http://localhost:8080
+
+3. Copy the generated URL (e.g., https://abc-xyz.trycloudflare.com)
+
+4. Update config.py:
+   CLOUDFLARE_WEBHOOK_URL = "https://abc-xyz.trycloudflare.com/webhook"
+
+
+STEP 5: CONFIGURE OXAPAY DASHBOARD
+─────────────────────────────────────────────────────────────
+1. Login to OxaPay Dashboard
+2. Go to Settings > Webhooks
+3. Set Callback URL to: https://abc-xyz.trycloudflare.com/webhook
+4. Enable webhook notifications
+5. Save settings
+
+
+STEP 6: CREATE PRIVATE GROUPS
+─────────────────────────────────────────────────────────────
+1. Create 4 private Telegram groups/channels
+2. Make your bot admin in each group
+3. Get invite links (Settings > Invite Link > Create Link)
+4. Add links to video_links.json
+
+
+STEP 7: SETUP DEMO CHANNEL
+─────────────────────────────────────────────────────────────
+1. Create a public Telegram channel
+2. Upload 5 demo videos
+3. Note the message IDs (right-click > Copy Message Link)
+   Example: https://t.me/demo5video/2 → message ID is 2
+4. Update video_links.json with channel username and IDs
+
+
+STEP 8: GET YOUR TELEGRAM USER ID
+─────────────────────────────────────────────────────────────
+1. Send /start to @userinfobot
+2. Copy your user ID
+3. Add to config.py ADMIN_IDS list
+
+
+STEP 9: RUN THE BOT
+─────────────────────────────────────────────────────────────
+python bot.py
+
+
+STEP 10: TEST THE BOT
+─────────────────────────────────────────────────────────────
+1. Open your bot in Telegram
+2. Send /start
+3. Click "Demo Videos" - should show 5 links
+4. Click "Buy Packages" - should show 4 packages
+5. Try creating a test payment
+6. Use /admin to access admin panel
+
+
+═══════════════════════════════════════════════════════════════
+🔧 TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════
+
+Problem: Bot not responding
+Solution: Check BOT_TOKEN is correct, check internet connection
+
+Problem: Webhook not working
+Solution: Ensure cloudflared tunnel is running, check URL in config
+
+Problem: Payment not delivered
+Solution: Check webhook logs, verify group invite links are valid
+
+Problem: Demo videos not showing
+Solution: Verify channel is public, check message IDs are correct
+
+Problem: Admin panel not accessible
+Solution: Verify your user ID is in ADMIN_IDS list
+
+
+═══════════════════════════════════════════════════════════════
+📊 DATABASE MANAGEMENT
+═══════════════════════════════════════════════════════════════
+
+View all users:
+sqlite3 bot_data.db "SELECT * FROM users;"
+
+View all payments:
+sqlite3 bot_data.db "SELECT * FROM payments;"
+
+View all purchases:
+sqlite3 bot_data.db "SELECT * FROM purchases;"
+
+View statistics:
+sqlite3 bot_data.db "SELECT COUNT(*) as total_purchases, SUM(amount) as total_revenue FROM purchases;"
+
+
+═══════════════════════════════════════════════════════════════
+🚀 DEPLOYMENT TIPS
+═══════════════════════════════════════════════════════════════
+
+1. Use a VPS (DigitalOcean, AWS, etc.) for 24/7 uptime
+2. Use screen/tmux to keep bot running:
+   screen -S videobot
+   python bot.py
+   Ctrl+A, D to detach
+
+3. Setup auto-restart on crash:
+   while true; do python bot.py; sleep 5; done
+
+4. Enable logging to file for debugging
+5. Regular database backups recommended
+6. Monitor payment webhook logs
+
+
+═══════════════════════════════════════════════════════════════
+✅ CHECKLIST
+═══════════════════════════════════════════════════════════════
+☐ Python 3.10+ installed
+☐ Dependencies installed (requirements.txt)
+☐ BOT_TOKEN configured
+☐ OXAPAY_API_KEY configured
+☐ Cloudflare Tunnel running
+☐ CLOUDFLARE_WEBHOOK_URL configured
+☐ OxaPay webhook URL set in dashboard
+☐ 4 private groups created
+☐ Group invite links added to video_links.json
+☐ Demo channel setup
+☐ Demo videos configured
+☐ ADMIN_IDS configured
+☐ Bot started successfully
+☐ Demo videos test passed
+☐ Payment test passed
+☐ Access delivery test passed
+
+
+═══════════════════════════════════════════════════════════════
+Support: @RefunderSid
+═══════════════════════════════════════════════════════════════
