@@ -2,13 +2,13 @@
 BOT_TOKEN = "8577432124:AAEyOv3CSuccPcteym6jzREhmKDUBUUXW4I"
 
 # OxaPay Configuration
-OXAPAY_API_KEY = "YOUR_OXAPAY_API_KEY"
+OXAPAY_API_KEY = "8YOQGB-IADGGH-XTEHHO-N8N2WE"
 
 # Webhook Configuration (Cloudflare Tunnel URL)
 # Set this in OxaPay Dashboard callback/webhook URL:
-#   https://YOUR_TUNNEL.trycloudflare.com/webhook
+#   https://elliott-lite-barcelona-pennsylvania.trycloudflare.com/webhook
 # This webhook will receive payment notifications from OxaPay
-CLOUDFLARE_WEBHOOK_URL = "https://your-tunnel-url.trycloudflare.com/webhook"
+CLOUDFLARE_WEBHOOK_URL = "https://elliott-lite-barcelona-pennsylvania.trycloudflare.com/webhook"
 
 # Admin User IDs (Telegram User IDs)
 ADMIN_IDS = [6670166083, 1747790038]
