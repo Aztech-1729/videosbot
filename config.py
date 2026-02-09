@@ -11,10 +11,10 @@ OXAPAY_API_KEY = "8YOQGB-IADGGH-XTEHHO-N8N2WE"
 CLOUDFLARE_WEBHOOK_URL = "https://elliott-lite-barcelona-pennsylvania.trycloudflare.com/webhook"
 
 # Admin User IDs (Telegram User IDs)
-ADMIN_IDS = [6670166083, 1747790038]
+ADMIN_IDS = [6670166083, 7640896919]
 
 # Support Username
-SUPPORT_USERNAME = "@RefunderSid"
+SUPPORT_USERNAME = "@IAMSID69"
 
 # Currency
 CURRENCY = "USD"
